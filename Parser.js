@@ -134,8 +134,8 @@ function parseTable(html) {
                       result.push(course)
                   }
               }
-              if (info[index + 7] !== undefined) {
-                  index += 7
+              if (info[index + 11] !== undefined) {
+                  index += 11
               } else  {
                   hasNext = false
               }
