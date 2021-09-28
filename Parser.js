@@ -108,39 +108,53 @@ function parseTable(html) {
   const $ = cheerio.load(html, { decodeEntities: false });
   let result = []
   $('#kbgrid_table_0').find('td').each(function() {
-      if ($(this).hasClass('td_wrap') && $(this).text().trim() !== '') {
-          let info = []
-          let weekday = parseInt($(this).attr('id').split('-')[0])
-          $(this).find('font').each(function() {
-              let text = $(this).text().trim()
-              if (text !== '') {
-                  info.push(text)
-              }
-          })
-          console.log(info)
-          let hasNext = true
-          let index = 0
-          while (hasNext) {
-              let course = {}
-              course.name = info[index]
-              course.teacher = info[index + 3]
-              course.position = info[index + 2]
-              course.day = weekday
-              if(info[index + 1]){
-                  if(info[index + 1].split('节)')[1]){
-                      let [weeks, sections] = getTime(info[index + 1])
-                      course.weeks = weeks
-                      course.sections = sections
-                      result.push(course)
-                  }
-              }
-              if (info[index + 11] !== undefined) {
-                  index += 11
-              } else  {
-                  hasNext = false
-              }
+    if ($(this).find('p').text().trim() !== '') {
+      let weekday = parseInt($(this).attr('id').split('-')[0])
+      let info = []
+      i = 0
+
+      $(this).find('[class^="title"]').each(function() {
+        info[i] = $(this).text().trim()
+        i += 4
+      })
+
+      $(this).find('p').each(function() {
+        text = $(this).text().trim()
+        switch ($(this).find('span').attr('title')) {
+          case "节/周":
+            info[1]==undefined ? info[1] = text : info[5] = text
+            break
+          case "教师":
+            info[3]==undefined ? info[3] = text : info[7] = text
+            break
+          case "上课地点":
+            info[2]==undefined ? info[2] = text : info[6] = text
+            break
+        }
+      })
+      console.log(info) 
+
+      let hasNext = true
+      let index = 0
+      while (hasNext) {
+          let course = {}
+          course.name = info[index]
+          course.teacher = info[index + 3]
+          course.position = info[index + 2]
+          course.day = weekday
+          if(info[index + 1].split('节)')[1]){
+              let [weeks, sections] = getTime(info[index + 1])
+              course.weeks = weeks
+              course.sections = sections
+              result.push(course)
+          }
+          if (info[index + 4] !== undefined) {
+              index += 4
+          } else  {
+              hasNext = false
           }
       }
+    }
   })
   return result
 }
