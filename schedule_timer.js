@@ -1,18 +1,18 @@
 /**
  * 时间配置函数，此为入口函数，不要改动函数名
  */
-async function scheduleTimer() {
-    await loadTool('AIScheduleTools')
-
-    const showWeekend = await AIScheduleConfirm({
-        titleText: '是否显示周末',
-        contentText: '如果周末有课程，请打开该设置',
-        cancelText: '不显示', // 取消按钮文字，可不传默认为取消
-        confirmText: '显示', // 确认按钮文字，可不传默认为确认
-    })
+async function scheduleTimer({providerRes,parserRes} = {}) {
+    let showWeekend = false
+    let maxWeek = 0
+    for (let classItem of parserRes) {
+        if (classItem.day > 5) {
+            showWeekend = true
+        }
+        maxWeek = Math.max(maxWeek, classItem.weeks[classItem.weeks.length-1])
+    }
 
     return {
-        totalWeek: 20, // 总周数：[1, 30]之间的整数
+        totalWeek: maxWeek, // 总周数：[1, 30]之间的整数
         startSemester: '', // 开学时间：时间戳，13位长度字符串，推荐用代码生成
         startWithSunday: false, // 是否是周日为起始日，该选项为true时，会开启显示周末选项
         showWeekend: showWeekend, // 是否显示周末
@@ -80,6 +80,6 @@ async function scheduleTimer() {
                 startTime: "20:10",
                 endTime: "20:55"
             }
-        ] // 课程时间表，注意：总长度要和上边配置的节数加和对齐
+        ]
     }
 }
